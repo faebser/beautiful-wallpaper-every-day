@@ -6,8 +6,16 @@ use hyper::header::{Headers, Authorization};
 extern crate serde;
 extern crate serde_json;
 
+extern crate rand;
+use rand::Rng;
+
 #[macro_use]
 extern crate serde_derive;
+
+use std::fs::File;
+use std::path::Path;
+use std::error::Error;
+use std::io::Write;
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -65,14 +73,14 @@ struct ProfileImage {
 struct User {
     id: String,
     username: String,
-    name: String,
-    first_name: String,
+    name: Option<String>,
+    first_name: Option<String>,
     last_name: Option<String>,
     updated_at: Option<String>,
     twitter_username: Option<String>,
-    portfolio_url: String,
-    bio: String,
-    location: String,
+    portfolio_url: Option<String>,
+    bio: Option<String>,
+    location: Option<String>,
     total_likes: u32,
     total_photos: u32,
     total_collections: u32,
@@ -164,12 +172,41 @@ fn main() {
         .headers(headers)
         .send();
 
-
     let json: UnsplashFoto = match resp {
         Ok(mut response) => {
             match response.json() {
                 Ok(result) => result,
                 Err(e) => {
+                    // let's keep the jsons responses that error
+                    // to build tests later
+                    let name_rnd: String = rand::thread_rng().gen_ascii_chars().take(10).collect();
+                    let full_name = &["jsons", &name_rnd[..]].join("/");
+                    let path = Path::new(full_name);
+                    let mut buf: Vec<u8> = vec![];
+                    response.copy_to(&mut buf).unwrap();
+
+                    let mut file = match File::create(&path) {
+                        Err(why) => {
+                            panic!(
+                                "could not create {:?} {:?}",
+                                path.display(),
+                                why.description()
+                            )
+                        }
+                        Ok(file) => file,
+                    };
+
+                    match file.write_all(buf.as_slice()) {
+                        Err(why) => {
+                            panic!(
+                                "could not write to {:?}: {:?}",
+                                path.display(),
+                                why.description()
+                            )
+                        }
+                        Ok(_) => println!("wrote faulty json to {:?}", path.display()),
+                    };
+
                     panic!(
                         "JSON PARSE ERROR: {:?} \n {:?}",
                         e,
@@ -181,7 +218,7 @@ fn main() {
         Err(e) => panic!("NETWORK ERROR: {:?}", e),
     };
 
-    println!("{:?}", json);
+    println!("{:?}", json.urls.full);
 
     //let test: UnsplashFoto = serde_json::from_str(data).unwrap();
 
