@@ -1,4 +1,6 @@
 extern crate reqwest;
+use reqwest::Url;
+
 #[macro_use]
 extern crate hyper;
 use hyper::header::{Headers, Authorization};
@@ -12,10 +14,18 @@ use rand::Rng;
 #[macro_use]
 extern crate serde_derive;
 
+extern crate glib;
+extern crate gio;
+use gio::SettingsExt;
+use glib::prelude::*;
+use glib::Variant;
+
 use std::fs::File;
 use std::path::Path;
 use std::error::Error;
-use std::io::Write;
+use std::io::{Write, copy};
+use std::env;
+use std::process::Command;
 
 #[derive(Debug)]
 #[derive(Serialize, Deserialize)]
@@ -167,11 +177,32 @@ fn main() {
     ));
     headers.set(AcceptVersion("v1".to_owned()));
 
-    let resp = client
-        .get("https://api.unsplash.com/photos/random")
-        .headers(headers)
-        .send();
+    let url = Url::parse_with_params(
+        "https://api.unsplash.com/photos/random",
+        &[
+            ("query", "space"),
+            ("w", "3840"),
+            ("orientation", "landscape"),
+        ],
+    ).unwrap();
 
+    println!("{:?}", url.as_str());
+
+    // use xdg pictures directory to save images
+
+    let output = Command::new("xdg-user-dir")
+        .arg("PICTURES")
+        .output()
+        .expect("failed to execute process");
+
+
+    let input_path = String::from_utf8_lossy(&output.stdout);
+    let root_path = input_path.trim_right_matches("\n");
+
+    println!("XDG_PICTURES_DIR is {:?}", root_path);
+
+
+    let resp = client.get(url).headers(headers).send();
     let json: UnsplashFoto = match resp {
         Ok(mut response) => {
             match response.json() {
@@ -180,7 +211,7 @@ fn main() {
                     // let's keep the jsons responses that error
                     // to build tests later
                     let name_rnd: String = rand::thread_rng().gen_ascii_chars().take(10).collect();
-                    let full_name = &["jsons", &name_rnd[..]].join("/");
+                    let full_name = &["jsons", &name_rnd].join("/");
                     let path = Path::new(full_name);
                     let mut buf: Vec<u8> = vec![];
                     response.copy_to(&mut buf).unwrap();
@@ -188,7 +219,7 @@ fn main() {
                     let mut file = match File::create(&path) {
                         Err(why) => {
                             panic!(
-                                "could not create {:?} {:?}",
+                                "could not create {:?}: {:?}",
                                 path.display(),
                                 why.description()
                             )
@@ -218,12 +249,43 @@ fn main() {
         Err(e) => panic!("NETWORK ERROR: {:?}", e),
     };
 
-    println!("{:?}", json.urls.full);
+    match client.get(&json.urls.full).send() {
+        Ok(mut response) => {
+            // get respones bytes
+            // and write them to file
+            let name_rnd: String = rand::thread_rng().gen_ascii_chars().take(10).collect();
+            let full_name = &[root_path, "backgrounds", &name_rnd].join("/");
+            let file_url =
+                Variant::from(&["file:/", root_path, "backgrounds", &name_rnd].join("/"));
+            let path = Path::new(full_name);
 
-    //let test: UnsplashFoto = serde_json::from_str(data).unwrap();
+            let mut file = match File::create(&path) {
+                Err(why) => {
+                    panic!(
+                        "could not create {:?}: {:?}",
+                        path.display(),
+                        why.description()
+                    )
+                }
+                Ok(file) => file,
+            };
 
-    //assert!(resp.status().is_success());
-
-    //let mut content = String::new();
-    //resp.read_to_string(&mut content);
+            match copy(&mut response, &mut file) {
+                Err(why) => {
+                    panic!(
+                        "could not write to {:?}: {:?}",
+                        path.display(),
+                        why.description()
+                    )
+                }
+                Ok(_) => {
+                    println!("wrote image to {:?}", path.display());
+                    let settings = gio::Settings::new("org.gnome.desktop.background");
+                    settings.set_value("picture-uri", &file_url);
+                    gio::Settings::sync();
+                }
+            };
+        }
+        Err(why) => panic!("NETWORK ERROR: {:?}", why.description()),
+    };
 }
