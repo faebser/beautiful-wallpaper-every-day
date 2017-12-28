@@ -283,6 +283,20 @@ fn main() {
                     let settings = gio::Settings::new("org.gnome.desktop.background");
                     settings.set_value("picture-uri", &file_url);
                     gio::Settings::sync();
+
+                    match json.links.download_location {
+                        Some(download_location) => {
+                            // ping download location
+                            match client
+                                .get(&download_location)
+                                .headers(headers.clone())
+                                .send() {
+                                Ok(_) => println!("Pinged API for download"),
+                                Err(_) => println!("Network error while pinging API for download"),
+                            }
+                        }
+                        None => println!("Response did not contain download link"),
+                    }
                 }
             };
         }
