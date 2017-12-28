@@ -180,7 +180,7 @@ fn main() {
     let url = Url::parse_with_params(
         "https://api.unsplash.com/photos/random",
         &[
-            ("query", "space"),
+            ("query", "space stars"),
             ("w", "3840"),
             ("orientation", "landscape"),
         ],
