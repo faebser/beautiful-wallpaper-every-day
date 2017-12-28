@@ -186,14 +186,12 @@ fn main() {
         ],
     ).unwrap();
 
-    println!("{:?}", url.as_str());
-
     // use xdg pictures directory to save images
 
     let output = Command::new("xdg-user-dir")
         .arg("PICTURES")
         .output()
-        .expect("failed to execute process");
+        .expect("failed to read PICTURES from xdg-user-dir");
 
 
     let input_path = String::from_utf8_lossy(&output.stdout);
@@ -286,10 +284,17 @@ fn main() {
 
                     match json.links.download_location {
                         Some(download_location) => {
-                            // ping download location
+                            // ping download location per api guidelines
+                            let mut headers = Headers::new();
+                            headers.set(Authorization(
+                                "Client-ID ee88235a89c58088c3ebf8025e90214c4574909913e0b7442165f4f87452384e"
+                                    .to_owned(),
+                            ));
+                            headers.set(AcceptVersion("v1".to_owned()));
+
                             match client
                                 .get(&download_location)
-                                .headers(headers.clone())
+                                .headers(headers)
                                 .send() {
                                 Ok(_) => println!("Pinged API for download"),
                                 Err(_) => println!("Network error while pinging API for download"),
