@@ -17,14 +17,13 @@ extern crate serde_derive;
 extern crate glib;
 extern crate gio;
 use gio::SettingsExt;
-use glib::prelude::*;
+//use glib::prelude::*;
 use glib::Variant;
 
 use std::fs::File;
 use std::path::Path;
 use std::error::Error;
 use std::io::{Write, copy};
-use std::env;
 use std::process::Command;
 
 #[derive(Debug)]
