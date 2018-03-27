@@ -26,8 +26,7 @@ use std::error::Error;
 use std::io::{Write, copy};
 use std::process::Command;
 
-#[derive(Debug)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Urls {
     raw: String,
     full: String,
@@ -36,8 +35,7 @@ struct Urls {
     thumb: String,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Category {
     id: String,
     title: String,
@@ -45,8 +43,7 @@ struct Category {
     links: Links,
 }
 
-#[derive(Debug)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Exif {
     make: Option<String>,
     model: Option<String>,
@@ -56,8 +53,7 @@ struct Exif {
     iso: Option<u16>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Links {
     #[serde(rename = "self")]
     _self: String,
@@ -69,16 +65,14 @@ struct Links {
     download_location: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct ProfileImage {
     small: String,
     medium: String,
     large: String,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct User {
     id: String,
     username: String,
@@ -104,16 +98,14 @@ struct Position {
     longitude: f64,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Location {
     city: String,
     country: String,
     position: Position,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Collection {
     id: u32,
     title: String,
@@ -125,8 +117,7 @@ struct Collection {
     links: Links,
 }
 
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct CoverPhoto {
     id: String,
     width: u16,
@@ -141,8 +132,7 @@ struct CoverPhoto {
     links: Links,
 }
 
-#[derive(Debug)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct UnsplashFoto {
     id: String,
     created_at: String,
