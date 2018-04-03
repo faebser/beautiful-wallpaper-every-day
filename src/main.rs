@@ -20,6 +20,9 @@ use gio::SettingsExt;
 //use glib::prelude::*;
 use glib::Variant;
 
+extern crate clap;
+use clap::{App, Arg};
+
 use std::fs::File;
 use std::path::Path;
 use std::error::Error;
@@ -166,13 +169,29 @@ fn main() {
     ));
     headers.set(AcceptVersion("v1".to_owned()));
 
+    let matches = App::new("unsplash")
+        .version("0.1.0")
+        .about("Small utility that queries the Unsplash API for a random picture,
+which it then sets as your background wallpaper.")
+        .arg(Arg::with_name("subject")
+            .help("Subject of the picture.")
+            .short("s")
+            .long("subject")
+            .takes_value(true))
+        .get_matches();
+
+    let mut params = vec![("orientation", "landscape"), ("w", "3840")];
+    if let Some(s) = matches.value_of("subject") {
+        params.push(("query", s));
+    } else {
+        params.push(("query", "space stars"));
+    }
+
+    // println!("params are {:?}", params);
+    
     let url = Url::parse_with_params(
         "https://api.unsplash.com/photos/random",
-        &[
-            ("query", "space stars"),
-            ("w", "3840"),
-            ("orientation", "landscape"),
-        ],
+        &params
     ).unwrap();
 
     // use xdg pictures directory to save images
