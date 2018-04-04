@@ -169,13 +169,17 @@ fn main() {
 
     let matches = App::new("unsplash")
         .version("0.1.0")
-        .about("Small utility that queries the Unsplash API for a random picture,
-which it then sets as your background wallpaper.")
-        .arg(Arg::with_name("subject")
-            .help("Subject of the picture.")
-            .short("s")
-            .long("subject")
-            .takes_value(true))
+        .about(
+            "Small utility that queries the Unsplash API for a random picture,
+which it then sets as your background wallpaper.",
+        )
+        .arg(
+            Arg::with_name("subject")
+                .help("Subject of the picture.")
+                .short("s")
+                .long("subject")
+                .takes_value(true),
+        )
         .get_matches();
 
     let mut params = vec![("orientation", "landscape"), ("w", "3840")];
@@ -186,11 +190,8 @@ which it then sets as your background wallpaper.")
     }
 
     // println!("params are {:?}", params);
-    
-    let url = Url::parse_with_params(
-        "https://api.unsplash.com/photos/random",
-        &params
-    ).unwrap();
+
+    let url = Url::parse_with_params("https://api.unsplash.com/photos/random", &params).unwrap();
 
     // use xdg pictures directory to save images
 
@@ -298,10 +299,7 @@ which it then sets as your background wallpaper.")
                             ));
                             headers.set(AcceptVersion("v1".to_owned()));
 
-                            match client
-                                .get(&download_location)
-                                .headers(headers)
-                                .send() {
+                            match client.get(&download_location).headers(headers).send() {
                                 Ok(_) => println!("Pinged API for download"),
                                 Err(_) => println!("Network error while pinging API for download"),
                             }
