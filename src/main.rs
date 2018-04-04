@@ -190,11 +190,12 @@ which it then sets as your background wallpaper.",
 
     let mut params = vec![("orientation", "landscape")];
 
-    if let Some(s) = matches.value_of("subject") {
-        params.push(("query", s));
-    } else {
-        params.push(("query", "space stars"));
-    }
+    let query = match matches.value_of("subject") {
+        Some(s) => s,
+        None => "space stars",
+    };
+
+    params.push(("query", query));
 
     let resolution = match matches.value_of("resolution") {
         None => "3840", // empty default
@@ -206,7 +207,7 @@ which it then sets as your background wallpaper.",
 
     params.push(("w", resolution));
 
-    // println!("params are {:?}", params);
+    //println!("params are {:?}", params);
 
     let url = Url::parse_with_params("https://api.unsplash.com/photos/random", &params).unwrap();
 
