@@ -17,7 +17,6 @@ extern crate serde_derive;
 extern crate glib;
 extern crate gio;
 use gio::SettingsExt;
-//use glib::prelude::*;
 use glib::Variant;
 
 extern crate clap;
@@ -94,8 +93,7 @@ struct User {
     links: Links,
 }
 
-#[derive(Debug)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Position {
     latitude: f64,
     longitude: f64,
@@ -203,7 +201,7 @@ which it then sets as your background wallpaper.")
 
 
     let input_path = String::from_utf8_lossy(&output.stdout);
-    let root_path = input_path.trim_right_matches("\n");
+    let root_path = input_path.trim_right_matches('\n');
 
     println!("XDG_PICTURES_DIR is {:?}", root_path);
 
