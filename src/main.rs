@@ -179,14 +179,32 @@ which it then sets as your background wallpaper.",
                 .long("subject")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("resolution")
+                .help("horizontal resolution of picture. Either hd or 4k. Defaults to 4k")
+                .short("r")
+                .long("resolution")
+                .takes_value(true)
+        )
         .get_matches();
 
-    let mut params = vec![("orientation", "landscape"), ("w", "3840")];
+    let mut params = vec![("orientation", "landscape")];
+
     if let Some(s) = matches.value_of("subject") {
         params.push(("query", s));
     } else {
         params.push(("query", "space stars"));
     }
+
+    let resolution = match matches.value_of("resolution") {
+        None => "3840", // empty default
+        Some(i) => match i { // inner match on unwraped value
+            "hd" => "1920",
+            "4k" | _ => "3840", // default and also 4k
+        }
+    };
+
+    params.push(("w", resolution));
 
     // println!("params are {:?}", params);
 
