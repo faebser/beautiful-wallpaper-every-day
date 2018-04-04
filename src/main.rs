@@ -157,14 +157,13 @@ struct UnsplashFoto {
 
 header! { (AcceptVersion, "Accept-Version") => [String] }
 
+const CLIENT_ID: &'static str = "Client-ID ee88235a89c58088c3ebf8025e90214c4574909913e0b7442165f4f87452384e";
+
 fn main() {
     let mut headers = Headers::new();
     let client = reqwest::Client::new();
 
-    headers.set(Authorization(
-        "Client-ID ee88235a89c58088c3ebf8025e90214c4574909913e0b7442165f4f87452384e"
-            .to_owned(),
-    ));
+    headers.set(Authorization(CLIENT_ID.to_owned()));
     headers.set(AcceptVersion("v1".to_owned()));
 
     let matches = App::new("unsplash")
@@ -293,10 +292,7 @@ which it then sets as your background wallpaper.",
                         Some(download_location) => {
                             // ping download location per api guidelines
                             let mut headers = Headers::new();
-                            headers.set(Authorization(
-                                "Client-ID ee88235a89c58088c3ebf8025e90214c4574909913e0b7442165f4f87452384e"
-                                    .to_owned(),
-                            ));
+                            headers.set(Authorization(CLIENT_ID.to_owned()));
                             headers.set(AcceptVersion("v1".to_owned()));
 
                             match client.get(&download_location).headers(headers).send() {
