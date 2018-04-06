@@ -95,8 +95,8 @@ struct User {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Position {
-    latitude: f64,
-    longitude: f64,
+    latitude: Option<f64>,
+    longitude: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
