@@ -101,8 +101,8 @@ struct Position {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Location {
-    city: String,
-    country: String,
+    city: Option<String>,
+    country: Option<String>,
     position: Position,
 }
 
