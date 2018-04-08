@@ -95,14 +95,14 @@ struct User {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Position {
-    latitude: f64,
-    longitude: f64,
+    latitude: Option<f64>,
+    longitude: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Location {
-    city: String,
-    country: String,
+    city: Option<String>,
+    country: Option<String>,
     position: Position,
 }
 
@@ -124,7 +124,7 @@ struct CoverPhoto {
     width: u16,
     height: u16,
     color: String,
-    likes: u16,
+    likes: u32,
     liked_by_user: bool,
     description: Option<String>,
     user: User,
@@ -141,8 +141,8 @@ struct UnsplashFoto {
     width: u16,
     height: u16,
     color: String,
-    downloads: u16,
-    likes: u16,
+    downloads: u32,
+    likes: u32,
     liked_by_user: bool,
     description: Option<String>,
     exif: Exif,
